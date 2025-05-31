@@ -1,15 +1,19 @@
 {
   "expo": {
-    "name": "phantomThuyen",
+    "name": "Phantom Fake",
     "slug": "phantomThuyen",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/ghost.png",
     "scheme": "phantomthuyen",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourcompany.phantomthuyen",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -37,6 +41,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "d7fddb3f-993c-45fe-befa-65f7a39b3d25"
+      }
     }
   }
 }
