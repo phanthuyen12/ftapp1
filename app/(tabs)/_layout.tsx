@@ -3,7 +3,6 @@ import React from 'react';
 import { Image, Platform, StyleSheet, View } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
-import TabBarBackground from '@/components/ui/TabBarBackground';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Feather, Ionicons } from '@expo/vector-icons';
 
@@ -20,7 +19,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
+        tabBarBackground: () => <View style={{ flex: 1, backgroundColor: '#0F0F0F' }} />,
         tabBarStyle: Platform.select({
           ios: {
             position: 'absolute',
@@ -29,12 +28,14 @@ export default function TabLayout() {
             elevation: 0,
             shadowOpacity: 0,
             paddingTop: 10,
+            backgroundColor: '#0F0F0F', // nền đen
           },
           android: {
             height: 60,
             borderTopWidth: 0,
             elevation: 0,
             shadowOpacity: 0,
+            backgroundColor: '#000', // nền đen
           },
         }),
       }}
@@ -52,7 +53,7 @@ export default function TabLayout() {
                   styles.icon,
                   {
                     tintColor: focused ? '#c6b9ff' : '#888',
-                    backgroundColor: 'transparent',
+                    // backgroundColor: '#000', // nền icon đen
                   },
                 ]}
                 resizeMode="contain"
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 60, // độ cao phù hợp với tabBarStyle
+    height: 60,
     paddingTop: 10,
   },
   activeLine: {
@@ -127,5 +128,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 88,
     height: 88,
+    // backgroundColor: '#0F0F0F', // nền icon
+    // borderRadius: 44, // hình tròn
   },
 });

@@ -28,8 +28,6 @@ interface Token {
   totalValue: string;
 }
 
-// --- AsyncStorage helper functions ---
-
 const TOKEN_IDS_KEY = 'TOKEN_IDS';
 
 const getTokenIds = async (): Promise<string[]> => {
@@ -101,7 +99,7 @@ const removeToken = async (id: string) => {
   }
 };
 
-// --- Component chính ---
+
 
 const TokenList = () => {
   const [tokenName, setTokenName] = useState<string>('');
@@ -110,90 +108,98 @@ const TokenList = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    // Load token đã lưu khi mở app
     const loadTokens = async () => {
       const savedTokens = await getAllTokens();
       setTokens(savedTokens);
     };
     loadTokens();
   }, []);
-const handleRemoveToken = async (id: string) => {
-  await removeToken(id); // gọi hàm đã có
-  const updatedTokens = tokens.filter(token => token.id !== id);
-  setTokens(updatedTokens); // cập nhật state
-};
 
-const fetchTokenData = async (tokenNameInput: string): Promise<Token | null> => {
-  try {
-    // Nếu nhập solana thì dùng API CoinGecko
-    if (tokenNameInput.trim().toLowerCase() === 'solana') {
-      // Kiểm tra xem token solana đã tồn tại chưa
-      const alreadyExists = tokens.some(t => t.id === 'solana');
+  const handleRemoveToken = async (id: string) => {
+    await removeToken(id);
+    const updatedTokens = tokens.filter(token => token.id !== id);
+    setTokens(updatedTokens);
+  };
+
+  const parseAmount = (amountStr: string): number => {
+    const cleanStr = amountStr.replace(/,/g, '');
+    return parseFloat(cleanStr);
+  };
+
+  const fetchTokenData = async (tokenNameInput: string): Promise<Token | null> => {
+    try {
+      if (tokenNameInput.trim().toLowerCase() === 'solana') {
+        const alreadyExists = tokens.some(t => t.id === 'solana');
+        if (alreadyExists) {
+          alert('Token Solana đã được thêm trước đó!');
+          return null;
+        }
+
+        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+        const data = await res.json();
+        if (!data.solana || !data.solana.usd) return null;
+
+        const priceUsd = data.solana.usd;
+        const amountNum = parseAmount(tokenAmount);
+        if (isNaN(amountNum)) return null;
+
+        const totalValue = amountNum * priceUsd;
+
+        return {
+          id: 'solana',
+          logo: 'https://assets.coingecko.com/coins/images/4128/small/solana.png',
+          name: 'Solana',
+          symbol: 'SOL',
+amount: amountNum.toString(),
+totalValue: totalValue.toFixed(2),
+          price: `$${priceUsd.toFixed(4)}`,
+          priceNative: '~',
+          buyPrice: priceUsd,
+          // totalValue: formatNumber(totalValue),
+          profitPercent: 0,
+        };
+      }
+
+      const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${tokenNameInput}`);
+      const json = await response.json();
+      const data = json.pairs?.[0];
+      if (!data) return null;
+
+      const baseId = data.pairAddress;
+      const alreadyExists = tokens.some(t => t.id.startsWith(baseId));
       if (alreadyExists) {
-        alert('Token Solana đã được thêm trước đó!');
+        alert('Token đã được thêm trước đó!');
         return null;
       }
 
-      // Gọi API CoinGecko lấy giá solana
-      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
-      const data = await res.json();
-      if (!data.solana || !data.solana.usd) return null;
-
-      const priceUsd = data.solana.usd;
-      const amountNum = parseFloat(tokenAmount);
+      const priceUsd = parseFloat(data.priceUsd);
+      const logo = data.info?.imageUrl || 'https://via.placeholder.com/48';
+      const amountNum = parseAmount(tokenAmount);
       if (isNaN(amountNum)) return null;
 
       const totalValue = amountNum * priceUsd;
 
       return {
-        id: 'solana',
-        logo: 'https://assets.coingecko.com/coins/images/4128/small/solana.png', // logo chính thức
-        name: 'Solana',
-        symbol: 'SOL',
-        amount: tokenAmount,
+        id: `${baseId}-${Date.now()}`,
+        logo,
+        name: data.baseToken.name,
+        symbol: data.baseToken.symbol,
+        // amount: formatNumber(amountNum),
+        amount: amountNum.toString(),
+
         price: `$${priceUsd.toFixed(4)}`,
-        priceNative: '~',
+        priceNative: data.priceNative || '~',
         buyPrice: priceUsd,
         totalValue: totalValue.toFixed(2),
+
+        // totalValue: formatNumber(totalValue),
         profitPercent: 0,
       };
-    }
-
-    // Với các token khác thì gọi Dexscreener như bình thường
-    const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${tokenNameInput}`);
-    const json = await response.json();
-    const data = json.pairs?.[0];
-    if (!data) return null;
-
-    const baseId = data.pairAddress;
-    const alreadyExists = tokens.some(t => t.id.startsWith(baseId));
-    if (alreadyExists) {
-      alert('Token đã được thêm trước đó!');
+    } catch (error) {
+      console.error('API Error:', error);
       return null;
     }
-
-    const priceUsd = parseFloat(data.priceUsd);
-    const logo = data.info?.imageUrl || 'https://via.placeholder.com/48';
-    const totalValue = parseFloat(tokenAmount) * priceUsd;
-
-    return {
-      id: `${baseId}-${Date.now()}`,
-      logo,
-      name: data.baseToken.name,
-      symbol: data.baseToken.symbol,
-      amount: tokenAmount,
-      price: `$${priceUsd.toFixed(4)}`,
-      priceNative: data.priceNative || '~',
-      buyPrice: priceUsd,
-      totalValue: totalValue.toFixed(2),
-      profitPercent: 0,
-    };
-  } catch (error) {
-    console.error('API Error:', error);
-    return null;
-  }
-};
-
+  };
 
   const addToken = async () => {
     if (!tokenName.trim() || !tokenAmount.trim()) return;
@@ -203,7 +209,10 @@ const fetchTokenData = async (tokenNameInput: string): Promise<Token | null> => 
 
     try {
       const tokenData = await fetchTokenData(tokenName);
-      if (!tokenData) return;
+      if (!tokenData) {
+        alert('Không tìm thấy token hoặc dữ liệu không hợp lệ');
+        return;
+      }
 
       const currentPrice = parseFloat(tokenData.price.replace('$', ''));
       const buyPrice = tokenData.buyPrice;
@@ -224,32 +233,31 @@ const fetchTokenData = async (tokenNameInput: string): Promise<Token | null> => 
     }
   };
 
- const renderTokenItem: ListRenderItem<Token> = ({ item, index }) => (
-  <View style={[styles.tokenItem, index !== 0 && styles.itemMargin]}>
-    <View style={styles.tokenRow}>
-      <Image source={{ uri: item.logo }} style={styles.tokenLogo} resizeMode="contain" />
-      <View style={styles.tokenInfo}>
-        <Text style={styles.tokenName}>{item.name} ({item.symbol})</Text>
-        <Text style={styles.tokenAmount}>Số lượng: {item.amount}</Text>
-      </View>
-      <View style={styles.priceInfo}>
-        <Text style={styles.tokenPrice}>{item.price}</Text>
-        <Text style={styles.priceNative}>{item.priceNative}</Text>
-        <Text
-          style={[
-            styles.profitPercent,
-            { color: item.profitPercent >= 0 ? '#4CAF50' : '#f44336' }
-          ]}
-        >
-          {item.profitPercent >= 0 ? '+' : ''}{item.profitPercent.toFixed(2)}%
-        </Text>
+  const renderTokenItem: ListRenderItem<Token> = ({ item, index }) => (
+    <View style={[styles.tokenItem, index !== 0 && styles.itemMargin]}>
+      <View style={styles.tokenRow}>
+        <Image source={{ uri: item.logo }} style={styles.tokenLogo} resizeMode="contain" />
+        <View style={styles.tokenInfo}>
+          <Text style={styles.tokenName}>{item.name} ({item.symbol})</Text>
+          <Text style={styles.tokenAmount}>Số lượng: {item.amount}</Text>
+        </View>
+        <View style={styles.priceInfo}>
+          <Text style={styles.tokenPrice}>{item.price}</Text>
+          <Text style={styles.priceNative}>{item.priceNative}</Text>
+          <Text
+            style={[
+              styles.profitPercent,
+              { color: item.profitPercent >= 0 ? '#4CAF50' : '#f44336' }
+            ]}
+          >
+            {item.profitPercent >= 0 ? '+' : ''}{item.profitPercent.toFixed(2)}%
+          </Text>
 
-        {/* Nút xoá */}
-        <Button title="Xoá" color="#e53935" onPress={() => handleRemoveToken(item.id)} />
+          <Button title="Xoá" color="#e53935" onPress={() => handleRemoveToken(item.id)} />
+        </View>
       </View>
     </View>
-  </View>
-);
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -264,8 +272,8 @@ const fetchTokenData = async (tokenNameInput: string): Promise<Token | null> => 
           />
           <TextInput
             style={styles.input}
-            placeholder="Nhập số lượng"
-            keyboardType="numeric"
+            placeholder="Nhập số lượng (vd: 8,747.55765)"
+            keyboardType="default"
             value={tokenAmount}
             onChangeText={setTokenAmount}
           />

@@ -8,6 +8,7 @@
     "scheme": "phantomthuyen",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "sdkVersion": "54.0.0",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.yourcompany.phantomthuyen",
@@ -37,7 +38,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
