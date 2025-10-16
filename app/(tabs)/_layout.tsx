@@ -1,10 +1,11 @@
+import CardIcon from '@/components/icon/CardIcon'; // nhớ chỉnh path đúng tới file CardIcon.jsx
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Image, Platform, StyleSheet, View } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Feather, Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -83,11 +84,8 @@ export default function TabLayout() {
           tabBarIcon: ({ focused, color }) => (
             <View style={styles.iconContainer}>
               {focused && <View style={styles.activeLine} />}
-              <Ionicons
-                name={focused ? 'time' : 'time-outline'}
-                size={30}
-                color={color}
-              />
+                     <CardIcon size={28} color={color} />
+
             </View>
           ),
         }}

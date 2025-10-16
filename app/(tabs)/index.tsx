@@ -202,7 +202,7 @@ export default function TabTwoScreen() {
         </View>
         <View style={styles.rightContainer}>
           <TouchableOpacity style={styles.iconButton}>
-            <Feather name="maximize" size={wp("6%")} color="#fff" />
+<Feather name="clock" size={wp("6%")} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton}>
             <Feather name="search" size={wp("6%")} color="#fff" />
@@ -271,6 +271,91 @@ export default function TabTwoScreen() {
             <BuyIcon />
             <Text style={styles.actionLabel}>Buy</Text>
           </TouchableOpacity>
+        </View>
+        {/* Cash Balance Section */}
+        <View
+          style={{
+            backgroundColor: "#222222",
+            padding: 16,
+            borderRadius: 12,
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 20,
+          }}
+        >
+          <View>
+            <Text
+              style={{
+                color: "#aaa",
+                fontSize: wp("3.6%"),
+                fontFamily: "SFProDisplay-Medium",
+              }}
+            >
+              Cash Balance
+            </Text>
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: wp("5%"),
+                fontWeight: "bold",
+                fontFamily: "SFProDisplay-Bold",
+                marginTop: 4,
+              }}
+            >
+              $0.00
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#b9a7ff",
+              paddingHorizontal: 18,
+              paddingVertical: 8,
+              borderRadius: 10,
+            }}
+          >
+            <Text
+              style={{
+                color: "#000",
+                fontWeight: "600",
+                fontSize: wp("3.5%"),
+              }}
+            >
+              Add Cash
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {/* Tabs: Tokens & Collectibles */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 16,
+          }}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: wp("4.8%"),
+                fontFamily: "SFProDisplay-Bold",
+                marginRight: 12,
+              }}
+            >
+              Tokens
+            </Text>
+            <Text
+              style={{
+                color: "#888",
+                fontSize: wp("4.8%"),
+                fontFamily: "SFProDisplay-Bold",
+              }}
+            >
+              Collectibles
+            </Text>
+          </View>
+          <Ionicons name="ellipsis-horizontal" size={20} color="#fff" />
         </View>
 
         <View>
@@ -404,14 +489,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
+      height: hp("8%"), // hoặc wp("20%") tùy tỷ lệ màn hình
+
     marginBottom: 19,
   },
   tokenRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: hp("1%"),
+    // paddingVertical: hp("1%"),
     borderBottomColor: "#333",
+      paddingVertical: hp("%"), // tăng một chút padding
+
   },
 
   tokenLogo: {
